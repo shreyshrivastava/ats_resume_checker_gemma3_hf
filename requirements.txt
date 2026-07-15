@@ -1,4 +1,4 @@
 streamlit
 requests
 PyMuPDF
-ollma
+ollama
