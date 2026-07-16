@@ -13,9 +13,7 @@ def process_resume(resume_file, job_description):
     resume_text = extract_text_from_pdf(resume_file)
 
     prompt = f"""
-You are an expert ATS (Applicant Tracking System) analyst and professional resume consultant with 15+ years of experience in technical recruiting and career coaching.
-
-Analyze the candidate's resume against the job description below and produce a structured, actionable evaluation.
+You are an expert ATS analyst and career advisor. Compare the candidate's resume against the job description and produce a concise, recruiter-style fit report.
 
 === JOB DESCRIPTION ===
 {job_description}
@@ -23,30 +21,41 @@ Analyze the candidate's resume against the job description below and produce a s
 === CANDIDATE RESUME ===
 {resume_text}
 
-=== INSTRUCTIONS ===
-Evaluate strictly based on the content provided. Do not assume skills or experience not explicitly stated or clearly implied. Be honest and specific.
+=== OUTPUT FORMAT ===
+Use this exact structure and style:
 
-Provide your analysis in the following format:
+1. [Company Name if available] — [Role Title if available]
 
-## 1. Overall ATS Match Score
-Give a score from 0-100 with brief justification.
+Location: [Location from job description, or "Not specified"]
+Freshness: [Use "Not specified" unless the job description includes a posting date or urgency.]
 
-## 2. Matched Skills & Qualifications
-List specific matches between resume and job description.
+Why it matches
+- [Short reason based only on resume evidence.]
+- [Short reason based only on resume evidence.]
+- [Short reason based only on resume evidence.]
 
-## 3. Missing or Weak Areas
-Identify specific gaps, prioritized by importance.
+Key requirements
+- [Requirement from the job description]
+- [Requirement from the job description]
+- [Requirement from the job description]
+- [Requirement from the job description]
 
-## 4. Keyword Optimization
-List 5-8 missing keywords that would improve ATS parsing.
+Likely gaps
+- [Gap or weaker area. If there are no major gaps, say "No major gaps found from the provided resume."]
+- [Optional second gap]
 
-## 5. Actionable Recommendations
-Provide 3-5 concrete suggestions to improve alignment.
+Resume keywords
 
-## 6. Summary Verdict
-One short paragraph on overall fit.
+[Comma-separated keywords the candidate should add or emphasize if accurate.]
 
-Keep the tone professional, direct, and constructive.
+Fit: [score]/10
+
+=== RULES ===
+- Be direct, specific, and concise.
+- Do not invent experience, dates, locations, companies, or skills.
+- If company or role is unclear, infer a simple title from the job description and mark uncertain details as "Not specified".
+- Keep each bullet to one sentence.
+- Score honestly based on evidence in the resume.
 """
 
     try:
