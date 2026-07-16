@@ -7,9 +7,17 @@ import logging
 
 configure_logging()
 logger = logging.getLogger(__name__)
+APP_PASSCODE = "2127"
 
 st.set_page_config(page_title="ATS Resume Checker", page_icon="🔍", layout="centered")
 logger.info("ATS Resume Checker app started")
+
+passcode = st.text_input("Passcode", type="password")
+if passcode != APP_PASSCODE:
+    if passcode:
+        logger.warning("Invalid passcode attempt")
+        st.error("Invalid passcode.")
+    st.stop()
 
 resume_file, job_description, submit = render_ui()
 
