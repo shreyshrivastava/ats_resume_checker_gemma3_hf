@@ -1,6 +1,12 @@
 import os
+
+import streamlit as st
 from huggingface_hub import InferenceClient
 from utils.pdf_reader import extract_text_from_pdf
+
+
+def get_hf_token():
+    return st.secrets.get("HF_TOKEN") or os.getenv("HF_TOKEN")
 
 
 def process_resume(resume_file, job_description):
@@ -44,7 +50,11 @@ Keep the tone professional, direct, and constructive.
 """
 
     try:
-        client = InferenceClient(token=os.getenv("HF_TOKEN"))
+        hf_token = get_hf_token()
+        if not hf_token:
+            return "Error: HF_TOKEN is not configured. Add it to Streamlit Cloud secrets or your local environment."
+
+        client = InferenceClient(token=hf_token)
 
         response = client.chat_completion(
             messages=[{"role": "user", "content": prompt}],

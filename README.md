@@ -31,6 +31,20 @@ export HF_TOKEN="your_hugging_face_token"
 streamlit run app.py
 ```
 
+## Deploy on Streamlit Cloud
+
+Use these settings when creating the app in Streamlit Cloud:
+
+- Repository: `shreyshrivastava/ats_resume_checker_gemma3_hf`
+- Branch: `streamlit-cloud`
+- Main file path: `app.py`
+
+Add this secret in the Streamlit Cloud app settings:
+
+```toml
+HF_TOKEN = "your_hugging_face_token"
+```
+
 ## Project Structure
 
 ```text
