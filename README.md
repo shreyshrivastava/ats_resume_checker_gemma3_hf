@@ -2,6 +2,8 @@
 
 This Streamlit app compares a PDF resume against a pasted job description and returns structured ATS-style feedback using Hugging Face's `InferenceClient`.
 
+Live app: https://atsresumecheckershrey.streamlit.app/
+
 The current backend model is:
 
 ```text
