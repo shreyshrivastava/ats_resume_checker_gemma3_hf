@@ -1,4 +1,4 @@
 streamlit
 requests
 PyMuPDF
-ollama
+huggingface_hub

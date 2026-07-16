@@ -1,49 +1,59 @@
 import os
-import requests
+from huggingface_hub import InferenceClient
 from utils.pdf_reader import extract_text_from_pdf
-import streamlit as st
+
 
 def process_resume(resume_file, job_description):
     resume_text = extract_text_from_pdf(resume_file)
 
     prompt = f"""
-You are a smart ATS resume analyzer powered by Gemma.
+You are an expert ATS (Applicant Tracking System) analyst and professional resume consultant with 15+ years of experience in technical recruiting and career coaching.
 
-Job Description:
+Analyze the candidate's resume against the job description below and produce a structured, actionable evaluation.
+
+=== JOB DESCRIPTION ===
 {job_description}
 
-Candidate Resume:
+=== CANDIDATE RESUME ===
 {resume_text}
 
-Provide a short ATS-style match report:
-1. Skills matched
-2. Missing qualifications or gaps
-3. Suggestions to improve the resume
-4. Overall ATS match score (0-100)
+=== INSTRUCTIONS ===
+Evaluate strictly based on the content provided. Do not assume skills or experience not explicitly stated or clearly implied. Be honest and specific.
+
+Provide your analysis in the following format:
+
+## 1. Overall ATS Match Score
+Give a score from 0-100 with brief justification.
+
+## 2. Matched Skills & Qualifications
+List specific matches between resume and job description.
+
+## 3. Missing or Weak Areas
+Identify specific gaps, prioritized by importance.
+
+## 4. Keyword Optimization
+List 5-8 missing keywords that would improve ATS parsing.
+
+## 5. Actionable Recommendations
+Provide 3-5 concrete suggestions to improve alignment.
+
+## 6. Summary Verdict
+One short paragraph on overall fit.
+
+Keep the tone professional, direct, and constructive.
 """
 
-    hf_token = os.getenv("HF_TOKEN")
-    api_url = "https://api-inference.huggingface.co/models/google/gemma-7b-it"
-
-    headers = {
-        "Authorization": f"Bearer {hf_token}",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-            "temperature": 0.7,
-            "max_new_tokens": 512
-        }
-    }
-
-    response = requests.post(api_url, headers=headers, json=payload)
-
     try:
-        result = response.json()
-        if isinstance(result, list):
-            return result[0]['generated_text']
-        return result.get('generated_text', str(result))
+        client = InferenceClient(token=os.getenv("HF_TOKEN"))
+
+        response = client.chat_completion(
+            messages=[{"role": "user", "content": prompt}],
+            model="openai/gpt-oss-120b:cerebras",
+            max_tokens=1024,
+            temperature=0.7,
+        )
+
+        return response.choices[0].message.content
+
     except Exception as e:
-        return f"❌ Error: {e}\nRaw response: {response.text}"
+        return f"Error: {e}"
