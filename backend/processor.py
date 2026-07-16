@@ -1,78 +1,91 @@
 import os
+import re
+import subprocess
+import sys
 
 import streamlit as st
-from huggingface_hub import InferenceClient
+from backend.scorer import analyze_resume, format_ats_report
 from utils.pdf_reader import extract_text_from_pdf
 
+DEFAULT_MLX_MODEL = "mlx-community/gemma-3-1b-it-4bit"
+MAX_TOKENS = 900
 
-def get_hf_token():
-    return st.secrets.get("HF_TOKEN") or os.getenv("HF_TOKEN")
+
+def get_mlx_model_name():
+    try:
+        return st.secrets.get("MLX_MODEL", DEFAULT_MLX_MODEL)
+    except Exception:
+        return DEFAULT_MLX_MODEL
+
+
+def is_codex_sandbox():
+    return os.getenv("CODEX_SANDBOX") or os.getenv("CODEX_CI")
+
+
+def generate_with_mlx(prompt):
+    model_name = get_mlx_model_name()
+    code = """
+import sys
+from mlx_lm import generate, load
+
+model_name = sys.argv[1]
+max_tokens = int(sys.argv[2])
+prompt = sys.stdin.read()
+
+model, tokenizer = load(model_name)
+output = generate(
+    model,
+    tokenizer,
+    prompt=prompt,
+    max_tokens=max_tokens,
+    temp=0.4,
+    verbose=False,
+)
+print(output)
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", code, model_name, str(MAX_TOKENS)],
+        input=prompt,
+        text=True,
+        capture_output=True,
+        timeout=300,
+    )
+    if result.returncode != 0:
+        error = result.stderr.strip() or result.stdout.strip() or "Unknown MLX error."
+        if "No Metal device available" in error:
+            return (
+                "Error: MLX needs Apple Metal/GPU access, but this runtime does not expose a Metal device. "
+                "Run the app from your normal Mac Terminal for real MLX generation."
+            )
+        return f"Error: MLX generation failed. {error}"
+    return result.stdout.strip()
 
 
 def process_resume(resume_file, job_description):
     resume_text = extract_text_from_pdf(resume_file)
+    analysis = analyze_resume(resume_text, job_description)
+    ats_report = format_ats_report(analysis)
+
+    if is_codex_sandbox():
+        return ats_report
 
     prompt = f"""
-You are an expert ATS analyst and career advisor. Compare the candidate's resume against the job description and produce a concise, recruiter-style fit report.
+You are an ATS resume advisor. Explain the deterministic ATS-style analysis below in clear, helpful language.
+Do not change the score, matched keywords, or missing keywords. Your job is to explain what the user should fix.
+
+=== ATS ANALYSIS ===
+{ats_report}
 
 === JOB DESCRIPTION ===
-{job_description}
+{job_description[:4000]}
 
-=== CANDIDATE RESUME ===
-{resume_text}
-
-=== OUTPUT FORMAT ===
-Use this exact structure and style:
-
-1. [Company Name if available] — [Role Title if available]
-
-Location: [Location from job description, or "Not specified"]
-Freshness: [Use "Not specified" unless the job description includes a posting date or urgency.]
-
-Why it matches
-- [Short reason based only on resume evidence.]
-- [Short reason based only on resume evidence.]
-- [Short reason based only on resume evidence.]
-
-Key requirements
-- [Requirement from the job description]
-- [Requirement from the job description]
-- [Requirement from the job description]
-- [Requirement from the job description]
-
-Likely gaps
-- [Gap or weaker area. If there are no major gaps, say "No major gaps found from the provided resume."]
-- [Optional second gap]
-
-Resume keywords
-
-[Comma-separated keywords the candidate should add or emphasize if accurate.]
-
-Fit: [score]/10
-
-=== RULES ===
-- Be direct, specific, and concise.
-- Do not invent experience, dates, locations, companies, or skills.
-- If company or role is unclear, infer a simple title from the job description and mark uncertain details as "Not specified".
-- Keep each bullet to one sentence.
-- Score honestly based on evidence in the resume.
+Return the same headings as the ATS analysis. Add one short "How to improve" section with practical resume edits.
 """
 
     try:
-        hf_token = get_hf_token()
-        if not hf_token:
-            return "Error: HF_TOKEN is not configured. Add it to Streamlit Cloud secrets or your local environment."
-
-        client = InferenceClient(token=hf_token)
-
-        response = client.chat_completion(
-            messages=[{"role": "user", "content": prompt}],
-            model="openai/gpt-oss-120b:cerebras",
-            max_tokens=1024,
-            temperature=0.7,
-        )
-
-        return response.choices[0].message.content
-
+        explanation = generate_with_mlx(prompt)
+        if explanation.startswith("Error:"):
+            return ats_report
+        return explanation
     except Exception as e:
-        return f"Error: {e}"
+        return ats_report

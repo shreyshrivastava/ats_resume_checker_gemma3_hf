@@ -1,13 +1,13 @@
 # ATS Resume Checker with GPT-OSS via Hugging Face
 
-This Streamlit app compares a PDF resume against a pasted job description and returns structured ATS-style feedback using Hugging Face's `InferenceClient`.
+This Streamlit app compares a PDF resume against a pasted job description and returns structured ATS-style feedback using a local MLX model.
 
 Live app: https://atsresumecheckershrey.streamlit.app/
 
-The current backend model is:
+The default backend model is:
 
 ```text
-openai/gpt-oss-120b:cerebras
+mlx-community/gemma-3-1b-it-4bit
 ```
 
 ## Features
@@ -22,15 +22,20 @@ openai/gpt-oss-120b:cerebras
 - Python
 - Streamlit
 - PyMuPDF
-- huggingface_hub
-- A Hugging Face token available as `HF_TOKEN`
+- mlx-lm
+- Apple Silicon Mac for local MLX inference
 
 ## Run Locally
 
 ```bash
 pip install -r requirements.txt
-export HF_TOKEN="your_hugging_face_token"
 streamlit run app.py
+```
+
+To use a different MLX model, set it in Streamlit secrets:
+
+```toml
+MLX_MODEL = "path-or-mlx-model-repo"
 ```
 
 ## Deploy on Streamlit Cloud
@@ -41,11 +46,7 @@ Use these settings when creating the app in Streamlit Cloud:
 - Branch: `streamlit-cloud`
 - Main file path: `app.py`
 
-Add this secret in the Streamlit Cloud app settings:
-
-```toml
-HF_TOKEN = "your_hugging_face_token"
-```
+Note: MLX is designed for Apple Silicon Macs. Streamlit Cloud typically runs Linux containers, so this branch is best for local MLX use unless your deployment runtime supports MLX.
 
 ## Project Structure
 
