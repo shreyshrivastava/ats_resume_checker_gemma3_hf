@@ -1,0 +1,44 @@
+[
+  {
+    "id": "ai_strong",
+    "group": "applied_ai_engineer",
+    "expected_strength": 3,
+    "resume_text": "Summary Applied AI Engineer. Experience building Python FastAPI services for LLM systems, retrieval augmented generation, prompt engineering, evaluation, pytest test suites, CI, Docker deployment, monitoring dashboards, and production APIs. Skills Python FastAPI LLM RAG evaluation pytest CI Docker deployment monitoring. Projects built resume matcher and AI assistants.",
+    "job_description": "Role: Applied AI Engineer. We need Python, FastAPI, LLM systems, retrieval augmented generation, evaluation, pytest, CI, Docker, deployment, monitoring, and prompt engineering."
+  },
+  {
+    "id": "ai_moderate",
+    "group": "applied_ai_engineer",
+    "expected_strength": 2,
+    "resume_text": "Summary Python developer. Experience with Python APIs, documentation, tests, data analysis, and deployment support. Skills Python REST APIs pytest documentation. Education Computer Science.",
+    "job_description": "Role: Applied AI Engineer. We need Python, FastAPI, LLM systems, retrieval augmented generation, evaluation, pytest, CI, Docker, deployment, monitoring, and prompt engineering."
+  },
+  {
+    "id": "ai_weak",
+    "group": "applied_ai_engineer",
+    "expected_strength": 1,
+    "resume_text": "Summary retail supervisor with customer service, scheduling, inventory, sales, cashier training, and store operations. Education business administration.",
+    "job_description": "Role: Applied AI Engineer. We need Python, FastAPI, LLM systems, retrieval augmented generation, evaluation, pytest, CI, Docker, deployment, monitoring, and prompt engineering."
+  },
+  {
+    "id": "nurse_strong",
+    "group": "staff_nurse",
+    "expected_strength": 3,
+    "resume_text": "Summary Staff Nurse. Experience with patient assessment, medication administration, clinical documentation, infection control, hospital ward workflows, care planning, and family communication. Skills BLS certification, medication safety, patient care, documentation, infection control. Education Bachelor of Nursing.",
+    "job_description": "Position: Staff Nurse. Requirements include patient assessment, medication administration, clinical documentation, BLS certification, communication, infection control, hospital ward experience, and care planning."
+  },
+  {
+    "id": "nurse_moderate",
+    "group": "staff_nurse",
+    "expected_strength": 2,
+    "resume_text": "Summary Healthcare assistant. Experience supporting patient care, scheduling, documentation, and communication in a clinic. Education healthcare diploma. Skills patient support and record keeping.",
+    "job_description": "Position: Staff Nurse. Requirements include patient assessment, medication administration, clinical documentation, BLS certification, communication, infection control, hospital ward experience, and care planning."
+  },
+  {
+    "id": "nurse_weak",
+    "group": "staff_nurse",
+    "expected_strength": 1,
+    "resume_text": "Summary Python software developer. Experience with APIs, Docker, CI, documentation, backend systems, and analytics dashboards. Education Computer Science.",
+    "job_description": "Position: Staff Nurse. Requirements include patient assessment, medication administration, clinical documentation, BLS certification, communication, infection control, hospital ward experience, and care planning."
+  }
+]

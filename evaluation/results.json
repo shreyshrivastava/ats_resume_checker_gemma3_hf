@@ -1,0 +1,191 @@
+{
+  "generated_at": "2026-07-23T15:01:46.701578+00:00",
+  "environment": {
+    "python": "3.14.5",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "case_count": 6,
+  "ranking_groups": 2,
+  "ranking_consistency_rate": 1.0,
+  "cases": [
+    {
+      "id": "ai_strong",
+      "group": "applied_ai_engineer",
+      "expected_strength": 3,
+      "score": 83,
+      "verdict": "Strong match",
+      "matched_terms": [
+        "generation evaluation",
+        "deployment monitoring",
+        "augmented generation",
+        "retrieval augmented",
+        "prompt engineering",
+        "evaluation pytest",
+        "docker deployment",
+        "monitoring prompt",
+        "applied engineer",
+        "system retrieval",
+        "python fastapi",
+        "pytest docker"
+      ],
+      "missing_terms": [
+        "engineer need",
+        "need python"
+      ]
+    },
+    {
+      "id": "ai_moderate",
+      "group": "applied_ai_engineer",
+      "expected_strength": 2,
+      "score": 21,
+      "verdict": "Needs improvement",
+      "matched_terms": [
+        "deployment",
+        "python"
+      ],
+      "missing_terms": [
+        "generation evaluation",
+        "deployment monitoring",
+        "augmented generation",
+        "retrieval augmented",
+        "prompt engineering",
+        "evaluation pytest",
+        "docker deployment",
+        "monitoring prompt",
+        "applied engineer",
+        "system retrieval",
+        "python fastapi",
+        "engineer need"
+      ]
+    },
+    {
+      "id": "ai_weak",
+      "group": "applied_ai_engineer",
+      "expected_strength": 1,
+      "score": 11,
+      "verdict": "Needs improvement",
+      "matched_terms": [],
+      "missing_terms": [
+        "generation evaluation",
+        "deployment monitoring",
+        "augmented generation",
+        "retrieval augmented",
+        "prompt engineering",
+        "evaluation pytest",
+        "docker deployment",
+        "monitoring prompt",
+        "applied engineer",
+        "system retrieval",
+        "python fastapi",
+        "engineer need"
+      ]
+    },
+    {
+      "id": "nurse_strong",
+      "group": "staff_nurse",
+      "expected_strength": 3,
+      "score": 77,
+      "verdict": "Strong match",
+      "matched_terms": [
+        "certification communication",
+        "medication administration",
+        "administration clinical",
+        "communication infection",
+        "clinical documentation",
+        "assessment medication",
+        "patient assessment",
+        "documentation bls",
+        "bls certification",
+        "infection control",
+        "control hospital",
+        "hospital ward"
+      ],
+      "missing_terms": [
+        "requirement patient",
+        "nurse requirement",
+        "position staff",
+        "requirement",
+        "position"
+      ]
+    },
+    {
+      "id": "nurse_moderate",
+      "group": "staff_nurse",
+      "expected_strength": 2,
+      "score": 21,
+      "verdict": "Needs improvement",
+      "matched_terms": [
+        "documentation",
+        "communication"
+      ],
+      "missing_terms": [
+        "certification communication",
+        "medication administration",
+        "administration clinical",
+        "communication infection",
+        "clinical documentation",
+        "assessment medication",
+        "requirement patient",
+        "patient assessment",
+        "nurse requirement",
+        "documentation bls",
+        "bls certification",
+        "infection control"
+      ]
+    },
+    {
+      "id": "nurse_weak",
+      "group": "staff_nurse",
+      "expected_strength": 1,
+      "score": 16,
+      "verdict": "Needs improvement",
+      "matched_terms": [
+        "documentation"
+      ],
+      "missing_terms": [
+        "certification communication",
+        "medication administration",
+        "administration clinical",
+        "communication infection",
+        "clinical documentation",
+        "assessment medication",
+        "requirement patient",
+        "patient assessment",
+        "nurse requirement",
+        "documentation bls",
+        "bls certification",
+        "infection control"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "group": "applied_ai_engineer",
+      "expected_order": [
+        "ai_strong",
+        "ai_moderate",
+        "ai_weak"
+      ],
+      "actual_order": [
+        "ai_strong",
+        "ai_moderate",
+        "ai_weak"
+      ],
+      "ranking_consistent": true
+    },
+    {
+      "group": "staff_nurse",
+      "expected_order": [
+        "nurse_strong",
+        "nurse_moderate",
+        "nurse_weak"
+      ],
+      "actual_order": [
+        "nurse_strong",
+        "nurse_moderate",
+        "nurse_weak"
+      ],
+      "ranking_consistent": true
+    }
+  ]
+}

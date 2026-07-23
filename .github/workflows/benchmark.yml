@@ -1,0 +1,47 @@
+name: Benchmarks
+
+on:
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: Number of deterministic benchmark iterations
+        required: false
+        default: "10"
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  deterministic-benchmarks:
+    runs-on: ubuntu-latest
+    env:
+      CI: "1"
+      ATS_ENABLE_MLX: "0"
+      BENCHMARK_ITERATIONS: ${{ github.event.inputs.iterations || '10' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run deterministic benchmarks
+        run: python benchmarks/run_benchmarks.py --iterations "$BENCHMARK_ITERATIONS"
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: deterministic-benchmark-results
+          path: |
+            benchmarks/results.json
+            benchmarks/results.md

@@ -1,30 +1,88 @@
+import logging
 import os
-import re
+import platform
 import subprocess
 import sys
-import logging
+from importlib.util import find_spec
 
 import streamlit as st
+
 from backend.scorer import analyze_resume, format_ats_report
-from utils.pdf_reader import extract_text_from_pdf
+from utils.pdf_reader import PDFReadError, extract_text_from_pdf
 
 DEFAULT_MLX_MODEL = "mlx-community/gemma-3-1b-it-4bit"
 MAX_TOKENS = 900
+DEFAULT_MLX_TIMEOUT_SECONDS = 300
 logger = logging.getLogger(__name__)
 
 
-def get_mlx_model_name():
+def _secret_or_env(name, default=None):
+    if name in os.environ:
+        return os.environ[name]
     try:
-        return st.secrets.get("MLX_MODEL", DEFAULT_MLX_MODEL)
+        return st.secrets.get(name, default)
     except Exception:
-        return DEFAULT_MLX_MODEL
+        return default
 
 
-def is_codex_sandbox():
-    return os.getenv("CODEX_SANDBOX") or os.getenv("CODEX_CI")
+def get_mlx_model_name():
+    return _secret_or_env("MLX_MODEL", DEFAULT_MLX_MODEL)
 
 
-def generate_with_mlx(prompt):
+def is_ci_or_sandbox():
+    return any(
+        os.getenv(name)
+        for name in ("CI", "GITHUB_ACTIONS", "CODEX_SANDBOX", "CODEX_CI")
+    )
+
+
+def _flag_value(name, default="auto"):
+    return str(_secret_or_env(name, default)).strip().lower()
+
+
+def mlx_package_available():
+    return find_spec("mlx_lm") is not None
+
+
+def should_use_mlx():
+    mode = _flag_value("ATS_ENABLE_MLX", "auto")
+    if mode in {"0", "false", "no", "off", "disabled", "never"}:
+        return False
+    if mode in {"1", "true", "yes", "on", "enabled", "always"}:
+        return True
+
+    return (
+        platform.system() == "Darwin"
+        and platform.machine().lower().startswith("arm")
+        and not is_ci_or_sandbox()
+        and mlx_package_available()
+    )
+
+
+def get_mlx_timeout_seconds():
+    raw_timeout = _secret_or_env("ATS_MLX_TIMEOUT_SECONDS", DEFAULT_MLX_TIMEOUT_SECONDS)
+    try:
+        return max(1, int(raw_timeout))
+    except (TypeError, ValueError):
+        return DEFAULT_MLX_TIMEOUT_SECONDS
+
+
+def build_mlx_prompt(ats_report, job_description):
+    return f"""
+You are an ATS resume advisor. Explain the deterministic ATS-style analysis below in clear, helpful language.
+Do not change the score, matched keywords, missing keywords, or scoring evidence. Your job is only to explain what the user should fix.
+
+=== ATS ANALYSIS ===
+{ats_report}
+
+=== JOB DESCRIPTION ===
+{job_description[:4000]}
+
+Return the same headings as the ATS analysis. Add one short "How to improve" section with practical resume edits.
+"""
+
+
+def generate_with_mlx(prompt, max_tokens=MAX_TOKENS):
     model_name = get_mlx_model_name()
     logger.info("Starting MLX generation: model=%s prompt_chars=%s", model_name, len(prompt))
     code = """
@@ -47,16 +105,16 @@ output = generate(
 print(output)
 """
     result = subprocess.run(
-        [sys.executable, "-c", code, model_name, str(MAX_TOKENS)],
+        [sys.executable, "-c", code, model_name, str(max_tokens)],
         input=prompt,
         text=True,
         capture_output=True,
-        timeout=300,
+        timeout=get_mlx_timeout_seconds(),
     )
     if result.returncode != 0:
         error = result.stderr.strip() or result.stdout.strip() or "Unknown MLX error."
         logger.warning("MLX generation failed: returncode=%s error=%s", result.returncode, error[:500])
-        if "No Metal device available" in error:
+        if "No Metal device available" in error or "metal" in error.lower():
             return (
                 "Error: MLX needs Apple Metal/GPU access, but this runtime does not expose a Metal device. "
                 "Run the app from your normal Mac Terminal for real MLX generation."
@@ -67,8 +125,27 @@ print(output)
 
 
 def process_resume(resume_file, job_description):
-    logger.info("Processing resume: file=%s job_description_chars=%s", getattr(resume_file, "name", "uploaded.pdf"), len(job_description))
-    resume_text = extract_text_from_pdf(resume_file)
+    logger.info(
+        "Processing resume: file=%s job_description_chars=%s",
+        getattr(resume_file, "name", "uploaded.pdf"),
+        len(job_description),
+    )
+    try:
+        resume_text = extract_text_from_pdf(resume_file)
+    except PDFReadError as exc:
+        logger.warning("PDF extraction failed: file=%s error=%s", getattr(resume_file, "name", "uploaded.pdf"), exc)
+        return (
+            "ATS Match Score: 0/100\n\n"
+            "Verdict: Unable to analyze resume\n\n"
+            "Target Role: Target role\n\n"
+            f"What this means:\n{exc}\n\n"
+            "Recommended Fixes:\n"
+            "- Upload a text-based PDF exported from your resume editor.\n"
+            "- Avoid scanned images unless OCR has been applied.\n"
+            "- Keep the file size within the configured upload limit.\n\n"
+            "Fit: 0/10"
+        )
+
     logger.info("PDF extracted: resume_chars=%s resume_words=%s", len(resume_text), len(resume_text.split()))
     analysis = analyze_resume(resume_text, job_description)
     ats_report = format_ats_report(analysis)
@@ -80,22 +157,11 @@ def process_resume(resume_file, job_description):
         len(analysis["missing_terms"]),
     )
 
-    if is_codex_sandbox():
-        logger.info("Codex sandbox detected: returning deterministic ATS report without MLX")
+    if not should_use_mlx():
+        logger.info("Returning deterministic ATS report without MLX")
         return ats_report
 
-    prompt = f"""
-You are an ATS resume advisor. Explain the deterministic ATS-style analysis below in clear, helpful language.
-Do not change the score, matched keywords, or missing keywords. Your job is to explain what the user should fix.
-
-=== ATS ANALYSIS ===
-{ats_report}
-
-=== JOB DESCRIPTION ===
-{job_description[:4000]}
-
-Return the same headings as the ATS analysis. Add one short "How to improve" section with practical resume edits.
-"""
+    prompt = build_mlx_prompt(ats_report, job_description)
 
     try:
         explanation = generate_with_mlx(prompt)

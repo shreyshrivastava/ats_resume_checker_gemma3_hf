@@ -1,0 +1,47 @@
+{
+  "generated_at": "2026-07-23T15:01:46.805070+00:00",
+  "environment": {
+    "python": "3.14.5",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "processor": "arm"
+  },
+  "methodology": {
+    "iterations": 10,
+    "data": "Synthetic text-based PDF resume and synthetic job description.",
+    "mlx": "Not included. This benchmark measures deterministic PDF extraction and scoring only."
+  },
+  "score_reproducible": true,
+  "score_samples": [
+    70,
+    70,
+    70,
+    70,
+    70,
+    70,
+    70,
+    70,
+    70,
+    70
+  ],
+  "pdf_extraction": {
+    "runs": 10,
+    "min_ms": 0.9083750046556816,
+    "median_ms": 0.998771000013221,
+    "max_ms": 2.6371249987278134,
+    "mean_ms": 1.3075081980787218
+  },
+  "deterministic_scoring": {
+    "runs": 10,
+    "min_ms": 0.6732499896315858,
+    "median_ms": 0.7466669994755648,
+    "max_ms": 1.8388750031590462,
+    "mean_ms": 0.9224917012033984
+  },
+  "total_analysis_without_mlx": {
+    "runs": 10,
+    "min_ms": 2.735416986979544,
+    "median_ms": 2.8979584967601113,
+    "max_ms": 7.487541006412357,
+    "mean_ms": 3.762187399843242
+  }
+}
