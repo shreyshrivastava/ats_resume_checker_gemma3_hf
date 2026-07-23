@@ -1,0 +1,13 @@
+# Synthetic Resume
+
+Summary Applied AI Engineer with Python, FastAPI, LLM systems, retrieval augmented generation, evaluation, pytest, CI, Docker deployment, monitoring, data pipelines, and production API experience.
+
+## Experience
+
+- Built deterministic scoring services for document matching workflows.
+- Added pytest coverage, GitHub Actions CI, deployment smoke tests, and benchmark scripts.
+- Implemented privacy-aware PDF parsing and user-facing error handling.
+
+## Skills
+
+Python, FastAPI, Streamlit, PyMuPDF, LLMs, RAG, evaluation, pytest, CI, Docker, deployment, observability, benchmarking.
