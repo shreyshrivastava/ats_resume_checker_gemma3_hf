@@ -146,7 +146,7 @@ The app is deployable to Streamlit Cloud in deterministic fallback mode. Streaml
 
 Recommended Streamlit Cloud settings:
 
-- Repository: `shreyshrivastava/ats_resume_checker_gemma3_hf`
+- Repository: `shreyshrivastava/ats-resume-checker`
 - Branch: `main` after these changes are merged
 - Main file path: `app.py`
 - Environment/secrets: `ATS_ENABLE_MLX=0`

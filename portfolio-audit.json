@@ -1,6 +1,6 @@
 {
   "project_name": "ATS Resume Checker",
-  "repository": "https://github.com/shreyshrivastava/ats_resume_checker_gemma3_hf",
+  "repository": "https://github.com/shreyshrivastava/ats-resume-checker",
   "resume_decision": "Supporting resume project",
   "target_roles": [
     "Applied AI Engineer",
