@@ -1,10 +1,11 @@
 # Project Architecture
 
-The app is designed as a deterministic ATS checker:
+The app is a hybrid ATS-style checker:
 
-- A deterministic scoring engine creates the ATS score and evidence.
-- The UI renders the score, role gaps, keyword matches, and resume changes as readable feedback.
-- A passcode gate protects the deployed Streamlit app from casual public usage.
+- `backend/scorer.py` creates the score and evidence deterministically.
+- `backend/processor.py` can ask MLX/Gemma 3 to explain the deterministic report.
+- The LLM is not allowed to change the score, matched keywords, missing keywords, or evidence.
+- Public deployments can run in deterministic mode when MLX/Apple Metal is unavailable.
 
 ## System Diagram
 
@@ -12,23 +13,29 @@ The app is designed as a deterministic ATS checker:
 flowchart TD
     A["User uploads PDF resume"] --> B["Streamlit UI<br/>app.py + frontend/ui.py"]
     C["User pastes job description"] --> B
-    L["User enters passcode"] --> B
-    B --> D["PDF text extraction<br/>utils/pdf_reader.py"]
-    D --> E["Field-agnostic ATS scoring<br/>backend/scorer.py"]
+    B --> L["Usage limit<br/>utils/usage_limiter.py"]
+    L --> D["Safe PDF extraction<br/>utils/pdf_reader.py"]
+    D --> E["Field-agnostic deterministic scoring<br/>backend/scorer.py"]
     C --> E
-    E --> F["Deterministic ATS report<br/>score, keywords, role gaps, fixes"]
-    F --> J["Polished feedback UI"]
+    E --> F["ATS report<br/>score, evidence, gaps, fixes"]
+    F --> G{"MLX enabled and available?"}
+    G -- "Yes: Apple Silicon local run" --> H["Optional Gemma 3 explanation<br/>MLX"]
+    G -- "No: CI/cloud/no Metal" --> I["Return deterministic report"]
+    H --> J["Rendered feedback + Markdown download"]
+    I --> J
     B --> K["Runtime logs<br/>logs/ats_resume_checker.log"]
     D --> K
     E --> K
+    H --> K
 ```
 
 ## Runtime Flow
 
 1. `app.py` configures logging and renders the Streamlit page.
 2. `frontend/ui.py` collects the PDF resume and job description.
-3. `utils/pdf_reader.py` extracts plain text from the uploaded PDF using PyMuPDF.
-4. `backend/scorer.py` calculates deterministic ATS signals:
+3. `utils/usage_limiter.py` checks the client run limit before analysis.
+4. `utils/pdf_reader.py` extracts text from the uploaded PDF with size and validity checks.
+5. `backend/scorer.py` calculates deterministic ATS signals:
    - matched keywords
    - missing or weak keywords
    - role/title alignment
@@ -36,8 +43,27 @@ flowchart TD
    - content depth
    - role gaps
    - resume changes for the target job
-5. `backend/processor.py` returns the deterministic report.
-6. `frontend/ui.py` renders the score ring, keyword lists, role gaps, resume-change guidance, and score breakdown.
+6. `backend/processor.py` returns the deterministic report unless MLX is explicitly enabled or automatically available on Apple Silicon.
+7. `frontend/ui.py` renders score, keyword evidence, gaps, recommendations, and a downloadable Markdown report.
+
+## Deterministic Versus Generative Responsibilities
+
+The deterministic scorer owns:
+
+- score
+- verdict
+- matched and missing terms
+- score breakdown
+- role gaps
+- resume-change recommendations
+
+The optional MLX layer owns only explanation wording. If MLX fails, times out, or is unavailable, the deterministic report is returned without changing the app flow.
+
+## Usage Limiting
+
+The public-demo limiter allows two analysis runs per client identifier by default. It uses Streamlit context IP data when available and stores only a salted HMAC hash plus run count in a local JSON file. It does not store raw IP addresses.
+
+This is a lightweight demo-control mechanism, not durable abuse prevention across redeploys, replicas, or state resets.
 
 ## Logging
 
@@ -47,15 +73,7 @@ Runtime logs are written to:
 logs/ats_resume_checker.log
 ```
 
-The log file is intentionally ignored by git. It captures:
-
-- app startup
-- blocked submissions
-- accepted submissions
-- uploaded filename and job-description length
-- extracted resume text size
-- computed score and verdict
-- passcode validation events
+The log file is ignored by git. It captures startup, blocked submissions, accepted submissions, filenames, text lengths, scoring metadata, MLX attempts/failures, and fallback behavior. It should not contain full resume text, full job-description text, raw IP addresses, API keys, or model outputs.
 
 ## Key Files
 
@@ -63,7 +81,8 @@ The log file is intentionally ignored by git. It captures:
 app.py                    Streamlit entry point and submit flow
 frontend/ui.py            UI styling, input controls, and feedback rendering
 backend/scorer.py         Deterministic field-agnostic ATS scoring
-backend/processor.py      PDF-to-report orchestration
-utils/pdf_reader.py       PDF text extraction
+backend/processor.py      PDF-to-report orchestration and optional MLX explanation
+utils/pdf_reader.py       Safe PDF text extraction
+utils/usage_limiter.py    Privacy-aware per-client run limiting
 utils/logging_config.py   Console and file logging setup
 ```

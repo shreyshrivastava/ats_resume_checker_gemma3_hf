@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
 
-
 LOG_DIR = Path(__file__).resolve().parents[1] / "logs"
 LOG_FILE = LOG_DIR / "ats_resume_checker.log"
 

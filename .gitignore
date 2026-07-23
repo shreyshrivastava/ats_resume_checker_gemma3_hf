@@ -4,3 +4,5 @@ __pycache__/
 .venv/
 .DS_Store
 logs/
+.ats_usage/
+ats_resume_checker_usage.json

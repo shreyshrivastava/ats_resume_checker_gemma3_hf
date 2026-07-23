@@ -1,0 +1,55 @@
+{
+  "project_name": "ATS Resume Checker",
+  "repository": "https://github.com/shreyshrivastava/ats_resume_checker_gemma3_hf",
+  "resume_decision": "Supporting resume project",
+  "target_roles": [
+    "Applied AI Engineer",
+    "LLM Engineer",
+    "Generative AI Engineer",
+    "AI Engineer",
+    "Machine Learning Engineer",
+    "AI Data Engineer",
+    "Python Backend Engineer"
+  ],
+  "scores": {
+    "technical_depth": 7,
+    "software_engineering_quality": 8,
+    "ai_ml_relevance": 7,
+    "product_usefulness": 7,
+    "reliability": 8,
+    "documentation": 8,
+    "deployment_readiness": 6,
+    "testing_quality": 8,
+    "originality": 6,
+    "resume_value": 7
+  },
+  "live_url": "",
+  "ci_status": "Configured locally; not pushed yet",
+  "deployment_status": "Prepared for Streamlit Cloud deterministic mode; public URL not verified",
+  "benchmark_summary": {
+    "iterations": 10,
+    "score_reproducible": true,
+    "pdf_extraction_median_ms": 1.00,
+    "deterministic_scoring_median_ms": 0.75,
+    "total_analysis_without_mlx_median_ms": 2.90
+  },
+  "evaluation_summary": {
+    "case_count": 6,
+    "ranking_groups": 2,
+    "ranking_consistency_rate": 1.0
+  },
+  "resume_bullets": [
+    "Built a Streamlit ATS-style resume analyzer with deterministic scoring across keyword match, role alignment, resume structure, and content depth.",
+    "Preserved Gemma 3/MLX as an optional Apple Silicon explanation layer while keeping CI and cloud deployment free of GPU/model requirements.",
+    "Added pytest coverage for scoring, PDF parsing, fallback behavior, UI parsing, and privacy-aware usage limiting.",
+    "Created synthetic ranking evaluation and latency benchmarks showing 100.00% ranking consistency on 6 synthetic cases and 2.90 ms median deterministic analysis latency in one local 10-run benchmark."
+  ],
+  "remaining_tasks": [
+    "Push branch after user approval",
+    "Run GitHub Actions after push",
+    "Enable public Streamlit Cloud access and retest live URL",
+    "Expand evaluation dataset",
+    "Add OCR support",
+    "Add explicit license"
+  ]
+}

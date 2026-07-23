@@ -1,0 +1,5 @@
+# Synthetic Job Description
+
+Role: Applied AI Engineer.
+
+We need Python, FastAPI, LLM systems, retrieval augmented generation, evaluation, pytest, CI, Docker, deployment, monitoring, privacy-aware document processing, and prompt engineering.

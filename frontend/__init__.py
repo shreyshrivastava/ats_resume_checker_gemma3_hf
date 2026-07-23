@@ -1,5 +1,1 @@
-
-
-# frontend/__init__.py
-from .ui import render_ui
-
+from .ui import render_ui as render_ui
