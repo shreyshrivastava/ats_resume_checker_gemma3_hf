@@ -68,15 +68,15 @@ Outputs:
 
 ## Benchmarks
 
-The benchmark uses a synthetic text-based PDF and synthetic job description. These numbers are one local run, not universal performance claims.
+The benchmark uses a synthetic text-based PDF and synthetic job description. These numbers are latency measurements from one local run, not accuracy scores or universal performance claims.
 
 Latest measured local run:
 
 - Environment: Python `3.14.5`, macOS `26.5.2`, arm64
 - Iterations: `10`
-- PDF extraction median: `1.00 ms`
-- Deterministic scoring median: `0.75 ms`
-- Total analysis without MLX median: `2.90 ms`
+- PDF extraction median latency: `1.00 ms`
+- Deterministic scoring median latency: `0.75 ms`
+- Total analysis without MLX median latency: `2.90 ms`
 - Score reproducible: `True`
 
 Run it:

@@ -81,7 +81,7 @@ Latest local result: 33 passed, 1 deselected.
 
 ## Evaluation
 
-Latest measured local run:
+Latest measured local run. These are latency measurements, not accuracy metrics:
 
 - Cases: 6
 - Ranking groups: 2
@@ -95,9 +95,9 @@ Latest measured local run:
 - Python: 3.14.5
 - Platform: macOS-26.5.2-arm64-arm-64bit-Mach-O
 - Iterations: 10
-- PDF extraction median: 1.00 ms
-- Deterministic scoring median: 0.75 ms
-- Total analysis without MLX median: 2.90 ms
+- PDF extraction median latency: 1.00 ms
+- Deterministic scoring median latency: 0.75 ms
+- Total analysis without MLX median latency: 2.90 ms
 - Score reproducible: true
 
 ## Deployment
